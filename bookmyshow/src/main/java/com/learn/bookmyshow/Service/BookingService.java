@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,8 +37,14 @@ public class BookingService {
         }
         Show show=showOptional.get();
         List<ShowSeat> showSeats=showSeatRepository.findAllById(showSeatIds);
+//        for(ShowSeat s:showSeats){
+//            if(s.getShowSeatStatus()== ShowSeatStatus.BLOCKED || s.getShowSeatStatus()==ShowSeatStatus.BOOKED){
+//                throw  new RuntimeException();
+//            }
+//        }
         for(ShowSeat s:showSeats){
-            if(s.getShowSeatStatus()== ShowSeatStatus.BLOCKED || s.getShowSeatStatus()==ShowSeatStatus.BOOKED){
+            if(!(s.getShowSeatStatus()==ShowSeatStatus.AVAILABLE)||
+                    s.getShowSeatStatus().equals(ShowSeatStatus.BLOCKED)&& (Duration.between(s.getBlockedAt().toInstant(),new Date().toInstant())).toMinutes()>15){
                 throw  new RuntimeException();
             }
         }
